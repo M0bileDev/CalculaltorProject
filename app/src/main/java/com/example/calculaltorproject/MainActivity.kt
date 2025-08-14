@@ -101,7 +101,7 @@ fun Displayer(
             modifier = modifier.fillMaxSize().padding(bottom = 72.dp),
             value = value,
             onValueChange = onValueChange,
-            enabled = false
+            readOnly = true
         )
         RoundButton(size = 56.dp, modifier = Modifier.absoluteOffset((-24).dp, (-8).dp),value = "C") { }
     }
