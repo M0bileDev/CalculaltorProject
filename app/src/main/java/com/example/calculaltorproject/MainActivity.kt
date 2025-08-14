@@ -39,7 +39,7 @@ import com.example.calculaltorproject.ui.theme.CalculaltorProjectTheme
 
 val displayBuilder = StringBuilder()
 
-enum class Actions{
+enum class Actions {
     CLEAR_ALL,
     SUM
 }
@@ -75,10 +75,11 @@ fun CalculatorApp(modifier: Modifier = Modifier) {
                         displayValue = displayBuilder.toString()
                     },
                     onActionChange = { newAction ->
-                        when(newAction){
+                        when (newAction) {
                             Actions.CLEAR_ALL -> {
                                 displayValue = ""
                             }
+
                             Actions.SUM -> {
                                 TODO()
                             }
@@ -98,12 +99,18 @@ fun Displayer(
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.BottomEnd) {
         TextField(
-            modifier = modifier.fillMaxSize().padding(bottom = 72.dp),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(bottom = 72.dp),
             value = value,
             onValueChange = onValueChange,
             readOnly = true
         )
-        RoundButton(size = 56.dp, modifier = Modifier.absoluteOffset((-24).dp, (-8).dp),value = "C") { }
+        RoundButton(
+            size = 56.dp,
+            modifier = Modifier.absoluteOffset((-24).dp, (-8).dp),
+            value = "C"
+        ) { }
     }
 }
 
@@ -245,7 +252,12 @@ private fun FourButtonRowPreview() {
 }
 
 @Composable
-fun RoundButton(size: Dp = 72.dp, modifier: Modifier = Modifier, value: String, onClick: () -> Unit) {
+fun RoundButton(
+    modifier: Modifier = Modifier,
+    size: Dp = 72.dp,
+    value: String,
+    onClick: () -> Unit
+) {
     Button(
         modifier = modifier.size(size, size),
         contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, 0.dp),
