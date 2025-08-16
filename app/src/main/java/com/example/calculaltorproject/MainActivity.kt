@@ -9,24 +9,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +36,47 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculaltorproject.ui.theme.CalculaltorProjectTheme
+import kotlinx.coroutines.launch
+
 
 val displayBuilder = StringBuilder()
 
-enum class Actions {
-    CLEAR_ALL,
-    SUM
+sealed class Signs(val action: Actions) {
+    data object Sum : Signs(Actions.Sign("="))
+    data object Delete : Signs(Actions.Sign("C"))
+    data object Brackets : Signs(Actions.Sign("( )"))
+    data object Percentage : Signs(Actions.Sign("%"))
+    data object ClearAll : Signs(Actions.Sign("AC"))
+    data object Plus : Signs(Actions.Sign("+"))
+    data object Minus : Signs(Actions.Sign("-"))
+    data object Divide : Signs(Actions.Sign("/"))
+    data object Multiply : Signs(Actions.Sign("*"))
+    data object ChangeAdditionNegative : Signs(Actions.Sign("+/-"))
+    data object Dot : Signs(Actions.Sign("."))
+
+    data object Nine : Signs(Actions.Number("9"))
+    data object Eight : Signs(Actions.Number("8"))
+    data object Seven : Signs(Actions.Number("7"))
+    data object Six : Signs(Actions.Number("6"))
+    data object Five : Signs(Actions.Number("5"))
+    data object Four : Signs(Actions.Number("4"))
+    data object Three : Signs(Actions.Number("3"))
+    data object Two : Signs(Actions.Number("2"))
+    data object One : Signs(Actions.Number("1"))
+    data object Zero : Signs(Actions.Number("0"))
+
+    data object NotImplementedYet : Signs(Actions.Sign(sign = ""))
+}
+
+
+sealed interface Actions {
+    data class Sign(val sign: String) : Actions
+    data class Number(val number: String) : Actions
+
+}
+
+sealed interface InputErrors {
+    data object SignAlreadyUsed : InputErrors
 }
 
 class MainActivity : ComponentActivity() {
@@ -57,31 +92,50 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CalculatorApp(modifier: Modifier = Modifier) {
     CalculaltorProjectTheme {
-        Scaffold(modifier = modifier.fillMaxSize()) { innerPadding ->
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerPadding ->
 
             var displayValue by remember { mutableStateOf("") }
+            val coroutine = rememberCoroutineScope()
 
             Column(modifier = Modifier.padding(innerPadding)) {
                 Displayer(
                     modifier = Modifier.weight(3f),
                     value = displayValue,
+                    onDeleteClicked = {
+
+                    }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 Interactor(
                     modifier = Modifier.weight(5f),
-                    onValueChange = { newValue ->
-                        displayBuilder.clear()
-                        displayBuilder.append(displayValue).append(newValue)
-                        displayValue = displayBuilder.toString()
-                    },
-                    onActionChange = { newAction ->
-                        when (newAction) {
-                            Actions.CLEAR_ALL -> {
+                    onActionChange = { signs ->
+                        when (signs) {
+                            Signs.NotImplementedYet -> {
+                                coroutine.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Not implemented yet.")
+                                }
+                            }
+
+                            Signs.ClearAll -> {
                                 displayValue = ""
                             }
 
-                            Actions.SUM -> {
-                                TODO()
+//                            Signs.Sum -> {
+//                                coroutine.launch {
+//                                    snackbarHostState.showSnackbar("Not implemented yet.")
+//                                }
+//                            }
+
+                            else -> {
+                                displayValue = textComposer(
+                                    signs = signs,
+                                    displayValue = displayValue,
+                                    onError = {})
                             }
                         }
                     }
@@ -91,11 +145,41 @@ fun CalculatorApp(modifier: Modifier = Modifier) {
     }
 }
 
+
+private fun textComposer(
+    signs: Signs,
+    displayValue: String,
+    onError: (InputErrors) -> Unit
+): String {
+    displayBuilder.clear()
+
+    if (signs == Signs.Delete || signs == Signs.Sum) return displayValue
+
+    when (val action = signs.action) {
+        Signs.Delete, Signs.Sum -> return displayValue
+        is Actions.Number -> {
+            displayBuilder.append(displayValue).append(action.number)
+        }
+
+        is Actions.Sign -> {
+            val lastCharacter = displayValue.last()
+            if (lastCharacter.toString() == action.sign) {
+                onError(InputErrors.SignAlreadyUsed)
+                return displayValue
+            }
+
+            displayBuilder.append(displayValue).append(action.sign)
+        }
+    }
+    return displayBuilder.toString()
+}
+
 @Composable
 fun Displayer(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit = {},
+    onDeleteClicked: () -> Unit
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.BottomEnd) {
         TextField(
@@ -109,105 +193,106 @@ fun Displayer(
         RoundButton(
             size = 56.dp,
             modifier = Modifier.absoluteOffset((-24).dp, (-8).dp),
-            value = "C"
-        ) { }
+            value = "C",
+            onClick = onDeleteClicked
+        )
     }
 }
 
 @Composable
 fun Interactor(
-    modifier: Modifier = Modifier, onValueChange: (String) -> Unit,
-    onActionChange: (Actions) -> Unit
+    modifier: Modifier = Modifier,
+    onActionChange: (Signs) -> Unit
 ) {
     Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceEvenly) {
         FourButtonRow(
-            firstButtonValue = "AC",
-            secondButtonValue = "( )",
-            thirdButtonValue = "%",
-            fourthButtonValue = "/",
-            onFirstButtonChange = { _ ->
-                onActionChange(Actions.CLEAR_ALL)
+            firstButtonValue = Signs.ClearAll,
+            secondButtonValue = Signs.NotImplementedYet,
+            thirdButtonValue = Signs.NotImplementedYet,
+            fourthButtonValue = Signs.Divide,
+            onFirstButtonChange = { action ->
+                onActionChange(action)
             },
-            onSecondButtonChange = { value ->
-//                onValueChange(value)
+            onSecondButtonChange = { action ->
+                onActionChange(action)
             },
-            onThirdButtonChange = { value ->
-//                onValueChange(value)
+            onThirdButtonChange = { action ->
+                onActionChange(action)
             },
-            onFourthButtonChange = { value ->
-                onValueChange(value)
-            },
-        )
-        FourButtonRow(
-            firstButtonValue = "7",
-            secondButtonValue = "8",
-            thirdButtonValue = "9",
-            fourthButtonValue = "x",
-            onFirstButtonChange = { value ->
-                onValueChange(value)
-            },
-            onSecondButtonChange = { value ->
-                onValueChange(value)
-            },
-            onThirdButtonChange = { value ->
-                onValueChange(value)
-            },
-            onFourthButtonChange = { value ->
-                onValueChange(value)
+            onFourthButtonChange = { action ->
+                onActionChange(action)
             },
         )
         FourButtonRow(
-            firstButtonValue = "4",
-            secondButtonValue = "5",
-            thirdButtonValue = "6",
-            fourthButtonValue = "-",
-            onFirstButtonChange = { value ->
-                onValueChange(value)
+            firstButtonValue = Signs.Seven,
+            secondButtonValue = Signs.Eight,
+            thirdButtonValue = Signs.Nine,
+            fourthButtonValue = Signs.Multiply,
+            onFirstButtonChange = { action ->
+                onActionChange(action)
             },
-            onSecondButtonChange = { value ->
-                onValueChange(value)
+            onSecondButtonChange = { action ->
+                onActionChange(action)
             },
-            onThirdButtonChange = { value ->
-                onValueChange(value)
+            onThirdButtonChange = { action ->
+                onActionChange(action)
             },
-            onFourthButtonChange = { value ->
-                onValueChange(value)
-            },
-        )
-        FourButtonRow(
-            firstButtonValue = "1",
-            secondButtonValue = "2",
-            thirdButtonValue = "3",
-            fourthButtonValue = "+",
-            onFirstButtonChange = { _ ->
-                onActionChange(Actions.CLEAR_ALL)
-            },
-            onSecondButtonChange = { value ->
-                onValueChange(value)
-            },
-            onThirdButtonChange = { value ->
-                onValueChange(value)
-            },
-            onFourthButtonChange = { value ->
-                onValueChange(value)
+            onFourthButtonChange = { action ->
+                onActionChange(action)
             },
         )
         FourButtonRow(
-            firstButtonValue = "+/-",
-            secondButtonValue = "0",
-            thirdButtonValue = ".",
-            fourthButtonValue = "=",
-            onFirstButtonChange = { _ ->
-//                onActionChange(Actions.CLEAR_ALL)
+            firstButtonValue = Signs.Four,
+            secondButtonValue = Signs.Five,
+            thirdButtonValue = Signs.Six,
+            fourthButtonValue = Signs.Minus,
+            onFirstButtonChange = { action ->
+                onActionChange(action)
             },
-            onSecondButtonChange = { value ->
-                onValueChange(value)
+            onSecondButtonChange = { action ->
+                onActionChange(action)
             },
-            onThirdButtonChange = { value ->
-//                onValueChange(value)
+            onThirdButtonChange = { action ->
+                onActionChange(action)
             },
-            onFourthButtonChange = { _ ->
-                onActionChange(Actions.SUM)
+            onFourthButtonChange = { action ->
+                onActionChange(action)
+            },
+        )
+        FourButtonRow(
+            firstButtonValue = Signs.One,
+            secondButtonValue = Signs.Two,
+            thirdButtonValue = Signs.Three,
+            fourthButtonValue = Signs.Plus,
+            onFirstButtonChange = { action ->
+                onActionChange(action)
+            },
+            onSecondButtonChange = { action ->
+                onActionChange(action)
+            },
+            onThirdButtonChange = { action ->
+                onActionChange(action)
+            },
+            onFourthButtonChange = { action ->
+                onActionChange(action)
+            },
+        )
+        FourButtonRow(
+            firstButtonValue = Signs.NotImplementedYet,
+            secondButtonValue = Signs.Zero,
+            thirdButtonValue = Signs.NotImplementedYet,
+            fourthButtonValue = Signs.Sum,
+            onFirstButtonChange = { action ->
+                onActionChange(action)
+            },
+            onSecondButtonChange = { action ->
+                onActionChange(action)
+            },
+            onThirdButtonChange = { action ->
+                onActionChange(action)
+            },
+            onFourthButtonChange = { action ->
+                onActionChange(action)
             },
         )
     }
@@ -216,38 +301,51 @@ fun Interactor(
 @Composable
 fun FourButtonRow(
     modifier: Modifier = Modifier,
-    firstButtonValue: String,
-    secondButtonValue: String,
-    thirdButtonValue: String,
-    fourthButtonValue: String,
-    onFirstButtonChange: (String) -> Unit,
-    onSecondButtonChange: (String) -> Unit,
-    onThirdButtonChange: (String) -> Unit,
-    onFourthButtonChange: (String) -> Unit,
+    firstButtonValue: Signs,
+    secondButtonValue: Signs,
+    thirdButtonValue: Signs,
+    fourthButtonValue: Signs,
+    onFirstButtonChange: (Signs) -> Unit,
+    onSecondButtonChange: (Signs) -> Unit,
+    onThirdButtonChange: (Signs) -> Unit,
+    onFourthButtonChange: (Signs) -> Unit,
 ) {
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         RoundButton(
-            value = firstButtonValue,
+            value = firstButtonValue.toVisualRepresentation(),
             onClick = { onFirstButtonChange(firstButtonValue) })
         RoundButton(
-            value = secondButtonValue,
+            value = secondButtonValue.toVisualRepresentation(),
             onClick = { onSecondButtonChange(secondButtonValue) })
         RoundButton(
-            value = thirdButtonValue,
+            value = thirdButtonValue.toVisualRepresentation(),
             onClick = { onThirdButtonChange(thirdButtonValue) })
         RoundButton(
-            value = fourthButtonValue,
+            value = fourthButtonValue.toVisualRepresentation(),
             onClick = { onFourthButtonChange(fourthButtonValue) })
     }
 }
+
+private fun Signs.toVisualRepresentation(): String = when (val action = this.action) {
+    is Actions.Sign -> action.sign
+    is Actions.Number -> action.number
+}
+
 
 @Preview
 @Composable
 private fun FourButtonRowPreview() {
     CalculaltorProjectTheme {
         FourButtonRow(
-            modifier = Modifier.Companion, "c", "( )",
-            "%", "/", {}, {}, {}, {})
+            firstButtonValue = Signs.One,
+            secondButtonValue = Signs.Two,
+            thirdButtonValue = Signs.Three,
+            fourthButtonValue = Signs.Plus,
+            onFirstButtonChange = {},
+            onSecondButtonChange = {},
+            onThirdButtonChange = {},
+            onFourthButtonChange = {},
+        )
     }
 }
 
