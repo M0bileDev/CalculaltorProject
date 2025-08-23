@@ -40,6 +40,19 @@ import kotlinx.coroutines.launch
 
 
 val displayBuilder = StringBuilder()
+val signsInUse = mutableListOf<Signs>()
+
+fun List<Signs>.unsupportedLastSignsDetected(): Boolean {
+    val unsupportedSigns = listOf(Signs.Plus, Signs.Minus, Signs.Multiply, Signs.Divide)
+    val signDetected = unsupportedSigns.any { it == last() }
+    return signDetected
+}
+
+fun List<Signs>.moreThanFifteenSameDigits(newSign: Signs): Boolean {
+    val lastFifteenDigits = takeLast(15)
+    val reversedLastFifteenDigits = lastFifteenDigits.reversed()
+    return reversedLastFifteenDigits.groupBy { it }.any { it.key == newSign && it.value.size == 15 }
+}
 
 sealed class Signs(val action: Actions) {
     data object Sum : Signs(Actions.Sign("="))
@@ -77,6 +90,13 @@ sealed interface Actions {
 
 sealed interface InputErrors {
     data object SignAlreadyUsed : InputErrors
+    data object UnsupportedLastSign : InputErrors
+    data object NothingToDelete : InputErrors
+    data object MoreThanFifteenSameDigits : InputErrors
+}
+
+sealed interface SignException {
+    data object ExplicitSignException : SignException
 }
 
 class MainActivity : ComponentActivity() {
@@ -106,36 +126,42 @@ fun CalculatorApp(modifier: Modifier = Modifier) {
                     modifier = Modifier.weight(3f),
                     value = displayValue,
                     onDeleteClicked = {
-
+                        signsInUse.signComposer(
+                            Signs.Delete,
+                            onSignCompleted = {
+                                it.textComposer(onTextCompleted = { newText ->
+                                    displayValue = newText
+                                })
+                            },
+                            onSignError = {},
+                            onError = {})
                     }
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 Interactor(
                     modifier = Modifier.weight(5f),
-                    onActionChange = { signs ->
-                        when (signs) {
+                    onActionChange = { sign ->
+                        when (sign) {
                             Signs.NotImplementedYet -> {
                                 coroutine.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("Not implemented yet.")
                                 }
                             }
-
-                            Signs.ClearAll -> {
-                                displayValue = ""
-                            }
-
-//                            Signs.Sum -> {
-//                                coroutine.launch {
-//                                    snackbarHostState.showSnackbar("Not implemented yet.")
-//                                }
-//                            }
-
                             else -> {
-                                displayValue = textComposer(
-                                    signs = signs,
-                                    displayValue = displayValue,
-                                    onError = {})
+                                signsInUse.signComposer(
+                                    sign,
+                                    onSignCompleted = {
+                                       it.textComposer(onTextCompleted = { newText ->
+                                           displayValue = newText
+                                       })
+                                    },
+                                    onSignError = {
+
+                                    },
+                                    onError = {
+
+                                    })
                             }
                         }
                     }
@@ -145,34 +171,83 @@ fun CalculatorApp(modifier: Modifier = Modifier) {
     }
 }
 
-
-private fun textComposer(
-    signs: Signs,
-    displayValue: String,
-    onError: (InputErrors) -> Unit
-): String {
-    displayBuilder.clear()
-
-    if (signs == Signs.Delete || signs == Signs.Sum) return displayValue
-
-    when (val action = signs.action) {
-        Signs.Delete, Signs.Sum -> return displayValue
-        is Actions.Number -> {
-            displayBuilder.append(displayValue).append(action.number)
+private fun List<Signs>.textComposer(onTextCompleted: (String) -> Unit) {
+    forEach { sign ->
+        val value = when(val action = sign.action){
+            is Actions.Number -> action.number
+            is Actions.Sign -> action.sign
         }
+        displayBuilder.append(value)
+    }
 
-        is Actions.Sign -> {
-            val lastCharacter = displayValue.last()
-            if (lastCharacter.toString() == action.sign) {
-                onError(InputErrors.SignAlreadyUsed)
-                return displayValue
+    onTextCompleted(displayBuilder.toString())
+    displayBuilder.clear()
+}
+
+class UnsupportedSignException : Exception()
+class InputSignException(val inputError: InputErrors) : Exception()
+
+private fun MutableList<Signs>.signComposer(
+    sign: Signs,
+    onSignCompleted: (List<Signs>) -> Unit,
+    onSignError: (SignException) -> Unit,
+    onError: (InputErrors) -> Unit
+) {
+
+    try {
+        if (sign == Signs.Sum) throw UnsupportedSignException()
+
+        //perform action based on sign delete "C"
+        if (sign == Signs.Delete) {
+            if (isEmpty()) {
+                throw InputSignException(InputErrors.NothingToDelete)
             }
 
-            displayBuilder.append(displayValue).append(action.sign)
+            dropLast(1)
+            return
         }
+
+        //perform action based on sign delete "AC"
+        if(sign == Signs.ClearAll){
+            clear()
+            return
+        }
+
+        //convert sign to action and perform text computation
+        when (sign.action) {
+            is Actions.Number -> {
+
+                if (moreThanFifteenSameDigits(sign)) {
+                    throw InputSignException(InputErrors.MoreThanFifteenSameDigits)
+                }
+
+                add(sign)
+            }
+
+            is Actions.Sign -> {
+
+                if (last() == sign) {
+                    throw InputSignException(InputErrors.SignAlreadyUsed)
+                }
+
+                if (unsupportedLastSignsDetected()) {
+                    throw InputSignException(InputErrors.UnsupportedLastSign)
+                }
+
+                add(sign)
+            }
+        }
+
+    } catch (_: UnsupportedSignException) {
+        onSignError(SignException.ExplicitSignException)
+    }catch (e: InputSignException){
+        onError(e.inputError)
     }
-    return displayBuilder.toString()
+    finally {
+        onSignCompleted(this)
+    }
 }
+
 
 @Composable
 fun Displayer(
