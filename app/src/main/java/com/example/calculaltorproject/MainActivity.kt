@@ -81,6 +81,11 @@ sealed class Signs(val action: Actions) {
     data object NotImplementedYet : Signs(Actions.Sign(sign = ""))
 }
 
+fun Signs.toVisualRepresentation(): String = when (val action = this.action) {
+    is Actions.Sign -> action.sign
+    is Actions.Number -> action.number
+}
+
 
 sealed interface Actions {
     data class Sign(val sign: String) : Actions
@@ -97,6 +102,82 @@ sealed interface InputErrors {
 
 sealed interface SignException {
     data object ExplicitSignException : SignException
+}
+
+fun List<Signs>.textComposer(onTextCompleted: (String) -> Unit) {
+    forEach { sign ->
+        val value = when(val action = sign.action){
+            is Actions.Number -> action.number
+            is Actions.Sign -> action.sign
+        }
+        displayBuilder.append(value)
+    }
+
+    onTextCompleted(displayBuilder.toString())
+    displayBuilder.clear()
+}
+
+class UnsupportedSignException : Exception()
+class InputSignException(val inputError: InputErrors) : Exception()
+fun MutableList<Signs>.signComposer(
+    sign: Signs,
+    onSignCompleted: (List<Signs>) -> Unit,
+    onSignError: (SignException) -> Unit,
+    onError: (InputErrors) -> Unit
+) {
+
+    try {
+        if (sign == Signs.Sum) throw UnsupportedSignException()
+
+        //perform action based on sign delete "C"
+        if (sign == Signs.Delete) {
+            if (isEmpty()) {
+                throw InputSignException(InputErrors.NothingToDelete)
+            }
+
+            dropLast(1)
+            return
+        }
+
+        //perform action based on sign delete "AC"
+        if(sign == Signs.ClearAll){
+            clear()
+            return
+        }
+
+        //convert sign to action and perform text computation
+        when (sign.action) {
+            is Actions.Number -> {
+
+                if (moreThanFifteenSameDigits(sign)) {
+                    throw InputSignException(InputErrors.MoreThanFifteenSameDigits)
+                }
+
+                add(sign)
+            }
+
+            is Actions.Sign -> {
+
+                if (last() == sign) {
+                    throw InputSignException(InputErrors.SignAlreadyUsed)
+                }
+
+                if (unsupportedLastSignsDetected()) {
+                    throw InputSignException(InputErrors.UnsupportedLastSign)
+                }
+
+                add(sign)
+            }
+        }
+
+    } catch (_: UnsupportedSignException) {
+        onSignError(SignException.ExplicitSignException)
+    }catch (e: InputSignException){
+        onError(e.inputError)
+    }
+    finally {
+        onSignCompleted(this)
+    }
 }
 
 class MainActivity : ComponentActivity() {
@@ -170,84 +251,6 @@ fun CalculatorApp(modifier: Modifier = Modifier) {
         }
     }
 }
-
-private fun List<Signs>.textComposer(onTextCompleted: (String) -> Unit) {
-    forEach { sign ->
-        val value = when(val action = sign.action){
-            is Actions.Number -> action.number
-            is Actions.Sign -> action.sign
-        }
-        displayBuilder.append(value)
-    }
-
-    onTextCompleted(displayBuilder.toString())
-    displayBuilder.clear()
-}
-
-class UnsupportedSignException : Exception()
-class InputSignException(val inputError: InputErrors) : Exception()
-
-private fun MutableList<Signs>.signComposer(
-    sign: Signs,
-    onSignCompleted: (List<Signs>) -> Unit,
-    onSignError: (SignException) -> Unit,
-    onError: (InputErrors) -> Unit
-) {
-
-    try {
-        if (sign == Signs.Sum) throw UnsupportedSignException()
-
-        //perform action based on sign delete "C"
-        if (sign == Signs.Delete) {
-            if (isEmpty()) {
-                throw InputSignException(InputErrors.NothingToDelete)
-            }
-
-            dropLast(1)
-            return
-        }
-
-        //perform action based on sign delete "AC"
-        if(sign == Signs.ClearAll){
-            clear()
-            return
-        }
-
-        //convert sign to action and perform text computation
-        when (sign.action) {
-            is Actions.Number -> {
-
-                if (moreThanFifteenSameDigits(sign)) {
-                    throw InputSignException(InputErrors.MoreThanFifteenSameDigits)
-                }
-
-                add(sign)
-            }
-
-            is Actions.Sign -> {
-
-                if (last() == sign) {
-                    throw InputSignException(InputErrors.SignAlreadyUsed)
-                }
-
-                if (unsupportedLastSignsDetected()) {
-                    throw InputSignException(InputErrors.UnsupportedLastSign)
-                }
-
-                add(sign)
-            }
-        }
-
-    } catch (_: UnsupportedSignException) {
-        onSignError(SignException.ExplicitSignException)
-    }catch (e: InputSignException){
-        onError(e.inputError)
-    }
-    finally {
-        onSignCompleted(this)
-    }
-}
-
 
 @Composable
 fun Displayer(
@@ -400,12 +403,6 @@ fun FourButtonRow(
             onClick = { onFourthButtonChange(fourthButtonValue) })
     }
 }
-
-private fun Signs.toVisualRepresentation(): String = when (val action = this.action) {
-    is Actions.Sign -> action.sign
-    is Actions.Number -> action.number
-}
-
 
 @Preview
 @Composable
