@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CalculaltorProject">
         <activity
-            android:name=".MainActivity"
+            android:name=".framework.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.CalculaltorProject">
             <intent-filter>

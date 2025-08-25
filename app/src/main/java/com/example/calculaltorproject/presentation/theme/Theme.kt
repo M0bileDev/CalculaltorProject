@@ -1,4 +1,4 @@
-package com.example.calculaltorproject.ui.theme
+package com.example.calculaltorproject.presentation.theme
 
 
 import android.os.Build
