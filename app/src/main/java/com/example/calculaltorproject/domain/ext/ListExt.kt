@@ -1,13 +1,17 @@
 package com.example.calculaltorproject.domain.ext
 
-import androidx.compose.foundation.layout.size
 import com.example.calculaltorproject.domain.model.Actions
 import com.example.calculaltorproject.domain.model.InputErrors
 import com.example.calculaltorproject.domain.model.InputSignException
 import com.example.calculaltorproject.domain.model.SignException
 import com.example.calculaltorproject.domain.model.Signs
+import com.example.calculaltorproject.domain.model.Signs.Brackets.toSign
 import com.example.calculaltorproject.domain.model.UnsupportedSignException
 import com.example.calculaltorproject.framework.displayBuilder
+
+typealias FirstValueIndex = Int
+typealias SecondValueIndex = Int
+typealias SignIndex = Int
 
 fun List<Signs>.unsupportedLastSignsDetected(): Boolean {
     val unsupportedSigns = listOf(Signs.Plus, Signs.Minus, Signs.Multiply, Signs.Divide)
@@ -24,7 +28,7 @@ fun List<Signs>.moreThanFifteenSameDigits(newSign: Signs): Boolean {
 fun List<Signs>.textComposer(onTextCompleted: (String) -> Unit) {
     forEach { sign ->
         val value = when (val action = sign.action) {
-            is Actions.Number -> action.number
+            is Actions.Number -> action.numberSign
             is Actions.Sign -> action.sign
         }
         displayBuilder.append(value)
@@ -73,6 +77,10 @@ fun MutableList<Signs>.signComposer(
 
             is Actions.Sign -> {
 
+                if (isEmpty()) {
+                    throw InputSignException(InputErrors.NoValueOnWhichCalculationsCanBeMade)
+                }
+
                 if (last() == sign) {
                     throw InputSignException(InputErrors.SignAlreadyUsed)
                 }
@@ -92,4 +100,62 @@ fun MutableList<Signs>.signComposer(
     } finally {
         onSignCompleted(this)
     }
+}
+
+fun MutableList<Signs>.calculateValue(): Long {
+    var theLowestPrecedence: Pair<Signs, Triple<SignIndex, FirstValueIndex, SecondValueIndex>> =
+        Signs.NotImplementedYet to Triple(-1, -1, -1)
+
+
+    var signIsPresent = true
+    while (signIsPresent) {
+
+        forEachIndexed { index, sign ->
+
+            //skip if sign is a number
+            if (sign.precedence == -1) return@forEachIndexed
+
+            //skip if sign is the same operator
+            if (sign.precedence == theLowestPrecedence.first.precedence) return@forEachIndexed
+
+            //skip if precedence order is higher than actual and actual is not the first sign (default is -1, not found earlier)
+            if (sign.precedence > theLowestPrecedence.first.precedence && theLowestPrecedence.first.precedence != -1) return@forEachIndexed
+
+            theLowestPrecedence = sign to Triple(index, index - 1, index + 1)
+        }
+
+        val firstNumber = (this[theLowestPrecedence.second.second].action as Actions.Number).number
+        val secondNumber = (this[theLowestPrecedence.second.third].action as Actions.Number).number
+
+        val result = when (theLowestPrecedence.first) {
+            Signs.Divide -> {
+                firstNumber / secondNumber
+            }
+
+            Signs.Multiply -> {
+                firstNumber * secondNumber
+            }
+
+            Signs.Minus -> {
+                firstNumber - secondNumber
+            }
+
+            Signs.Plus -> {
+                firstNumber + secondNumber
+            }
+
+            else -> throw IllegalStateException("sign not allowed ${theLowestPrecedence.first}")
+        }
+
+        this.removeAt(theLowestPrecedence.second.second)
+        // index changed drop one down
+        this.removeAt(theLowestPrecedence.second.third - 1)
+        // index changed drop one down
+        this[theLowestPrecedence.second.first - 1] = toSign(result)
+
+        signIsPresent = this.any { it.action is Actions.Sign }
+    }
+
+    return (this.first().action as Actions.Number).number
+
 }
