@@ -7,11 +7,12 @@ import com.example.calculaltorproject.domain.model.SignException
 import com.example.calculaltorproject.domain.model.Signs
 import com.example.calculaltorproject.domain.model.Signs.Brackets.toSign
 import com.example.calculaltorproject.domain.model.UnsupportedSignException
-import com.example.calculaltorproject.framework.displayBuilder
 
 typealias FirstValueIndex = Int
 typealias SecondValueIndex = Int
 typealias SignIndex = Int
+
+val displayBuilder = StringBuilder()
 
 fun List<Signs>.unsupportedLastSignsDetected(): Boolean {
     val unsupportedSigns = listOf(Signs.Plus, Signs.Minus, Signs.Multiply, Signs.Divide)
@@ -60,6 +61,9 @@ fun MutableList<Signs>.signComposer(
 
         //perform action based on sign delete "AC"
         if (sign == Signs.ClearAll) {
+            if (isEmpty()) {
+                throw InputSignException(InputErrors.NothingToClear)
+            }
             clear()
             return
         }
@@ -100,6 +104,46 @@ fun MutableList<Signs>.signComposer(
     } finally {
         onSignCompleted(this)
     }
+}
+
+fun MutableList<Signs>.groupNumbers() {
+
+    //given list [Five,Five,Five,Plus,Four,Minus,Two,One,Zero]
+    val returnList = mutableListOf<List<Signs>>()
+    val helperList = mutableListOf<Signs>()
+    this.forEachIndexed { index, item ->
+        if (item.action !is Actions.Sign) {
+            helperList.add(item)
+            if (index == this.size - 1) {
+                returnList.add(helperList.take(helperList.size))
+            }
+        } else {
+            if (helperList.isNotEmpty()) {
+                returnList.add(helperList.take(helperList.size))
+                helperList.clear()
+            }
+            returnList.add(listOf(item))
+        }
+    }
+
+    //given list [[Five,Five,Five],[Plus],[Four],[Minus],[Two,One,Zero]]
+    val groupedNumbersSignsList = returnList.map {
+        if (it.first().action is Actions.Number) {
+            val builder = StringBuilder()
+            it.map { sign -> builder.append((sign.action as Actions.Number).numberSign) }
+            val numberSigns = builder.toString()
+            val value = numberSigns.toLong()
+            Signs.NumberHelper(numberSigns, value)
+        } else {
+            it.first()
+        }
+    }
+
+
+    this.clear()
+
+    //given list, sample converted to digits for simplicity [[555],[+],[4],[-],[210]]
+    this.addAll(groupedNumbersSignsList)
 }
 
 fun MutableList<Signs>.calculateValue(): Long {
@@ -157,5 +201,4 @@ fun MutableList<Signs>.calculateValue(): Long {
     }
 
     return (this.first().action as Actions.Number).number
-
 }
