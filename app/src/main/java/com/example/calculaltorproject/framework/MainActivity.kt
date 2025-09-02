@@ -45,7 +45,6 @@ import com.example.calculaltorproject.presentation.theme.CalculaltorProjectTheme
 import kotlinx.coroutines.launch
 
 
-val displayBuilder = StringBuilder()
 val signsInUse = mutableListOf<Signs>()
 
 class MainActivity : ComponentActivity() {
