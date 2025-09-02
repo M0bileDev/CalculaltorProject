@@ -1,0 +1,320 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ListExtKt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.calculaltorproject.domain.ext</a>
+</div>
+
+<h1>Coverage Summary for Class: ListExtKt (com.example.calculaltorproject.domain.ext)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ListExtKt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (7/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    86.5%
+  </span>
+  <span class="absValue">
+    (45/52)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    96.7%
+  </span>
+  <span class="absValue">
+    (88/91)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.calculaltorproject.domain.ext
+&nbsp;
+&nbsp;import com.example.calculaltorproject.domain.model.Actions
+&nbsp;import com.example.calculaltorproject.domain.model.InputErrors
+&nbsp;import com.example.calculaltorproject.domain.model.InputSignException
+&nbsp;import com.example.calculaltorproject.domain.model.SignException
+&nbsp;import com.example.calculaltorproject.domain.model.Signs
+&nbsp;import com.example.calculaltorproject.domain.model.Signs.Brackets.toSign
+&nbsp;import com.example.calculaltorproject.domain.model.UnsupportedSignException
+&nbsp;
+&nbsp;typealias FirstValueIndex = Int
+&nbsp;typealias SecondValueIndex = Int
+&nbsp;typealias SignIndex = Int
+&nbsp;
+<b class="fc">&nbsp;val displayBuilder = StringBuilder()</b>
+&nbsp;
+&nbsp;fun List&lt;Signs&gt;.unsupportedLastSignsDetected(): Boolean {
+<b class="fc">&nbsp;    val unsupportedSigns = listOf(Signs.Plus, Signs.Minus, Signs.Multiply, Signs.Divide)</b>
+<b class="fc">&nbsp;    val signDetected = unsupportedSigns.any { it == last() }</b>
+<b class="fc">&nbsp;    return signDetected</b>
+&nbsp;}
+&nbsp;
+&nbsp;fun List&lt;Signs&gt;.moreThanFifteenSameDigits(newSign: Signs): Boolean {
+<b class="fc">&nbsp;    val lastFifteenDigits = takeLast(15)</b>
+<b class="fc">&nbsp;    val reversedLastFifteenDigits = lastFifteenDigits.reversed()</b>
+<b class="pc">&nbsp;    return reversedLastFifteenDigits.groupBy { it }.any { it.key == newSign &amp;&amp; it.value.size == 15 }</b>
+&nbsp;}
+&nbsp;
+&nbsp;fun List&lt;Signs&gt;.textComposer(onTextCompleted: (String) -&gt; Unit) {
+<b class="fc">&nbsp;    forEach { sign -&gt;</b>
+<b class="fc">&nbsp;        val value = when (val action = sign.action) {</b>
+<b class="fc">&nbsp;            is Actions.Number -&gt; action.numberSign</b>
+<b class="fc">&nbsp;            is Actions.Sign -&gt; action.sign</b>
+&nbsp;        }
+<b class="fc">&nbsp;        displayBuilder.append(value)</b>
+<b class="fc">&nbsp;    }</b>
+&nbsp;
+<b class="fc">&nbsp;    onTextCompleted(displayBuilder.toString())</b>
+<b class="fc">&nbsp;    displayBuilder.clear()</b>
+&nbsp;}
+&nbsp;
+&nbsp;fun MutableList&lt;Signs&gt;.signComposer(
+&nbsp;    sign: Signs,
+&nbsp;    onSignCompleted: (List&lt;Signs&gt;) -&gt; Unit,
+&nbsp;    onSignError: (SignException) -&gt; Unit,
+&nbsp;    onError: (InputErrors) -&gt; Unit
+&nbsp;) {
+&nbsp;
+&nbsp;    try {
+<b class="fc">&nbsp;        if (sign == Signs.Sum) throw UnsupportedSignException()</b>
+&nbsp;
+&nbsp;        //perform action based on sign delete &quot;C&quot;
+<b class="fc">&nbsp;        if (sign == Signs.Delete) {</b>
+<b class="fc">&nbsp;            if (isEmpty()) {</b>
+<b class="fc">&nbsp;                throw InputSignException(InputErrors.NothingToDelete)</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            this.removeAt(this.size - 1)</b>
+<b class="fc">&nbsp;            return</b>
+&nbsp;        }
+&nbsp;
+&nbsp;        //perform action based on sign delete &quot;AC&quot;
+<b class="fc">&nbsp;        if (sign == Signs.ClearAll) {</b>
+<b class="fc">&nbsp;            if (isEmpty()) {</b>
+<b class="fc">&nbsp;                throw InputSignException(InputErrors.NothingToClear)</b>
+&nbsp;            }
+<b class="fc">&nbsp;            clear()</b>
+&nbsp;            return
+&nbsp;        }
+&nbsp;
+&nbsp;        //convert sign to action and perform text computation
+<b class="fc">&nbsp;        when (sign.action) {</b>
+<b class="fc">&nbsp;            is Actions.Number -&gt; {</b>
+&nbsp;
+<b class="fc">&nbsp;                if (moreThanFifteenSameDigits(sign)) {</b>
+<b class="fc">&nbsp;                    throw InputSignException(InputErrors.MoreThanFifteenSameDigits)</b>
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                add(sign)</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            is Actions.Sign -&gt; {</b>
+&nbsp;
+<b class="fc">&nbsp;                if (isEmpty()) {</b>
+<b class="fc">&nbsp;                    throw InputSignException(InputErrors.NoValueOnWhichCalculationsCanBeMade)</b>
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                if (last() == sign) {</b>
+<b class="fc">&nbsp;                    throw InputSignException(InputErrors.SignAlreadyUsed)</b>
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                if (unsupportedLastSignsDetected()) {</b>
+<b class="fc">&nbsp;                    throw InputSignException(InputErrors.UnsupportedLastSign)</b>
+&nbsp;                }
+&nbsp;
+<b class="fc">&nbsp;                add(sign)</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+&nbsp;    } catch (_: UnsupportedSignException) {
+<b class="fc">&nbsp;        onSignError(SignException.ExplicitSignException)</b>
+&nbsp;    } catch (e: InputSignException) {
+<b class="fc">&nbsp;        onError(e.inputError)</b>
+&nbsp;    } finally {
+<b class="fc">&nbsp;        onSignCompleted(this)</b>
+&nbsp;    }
+&nbsp;}
+&nbsp;
+&nbsp;fun MutableList&lt;Signs&gt;.groupNumbers() {
+&nbsp;
+&nbsp;    //given list [Five,Five,Five,Plus,Four,Minus,Two,One,Zero]
+<b class="fc">&nbsp;    val returnList = mutableListOf&lt;List&lt;Signs&gt;&gt;()</b>
+<b class="fc">&nbsp;    val helperList = mutableListOf&lt;Signs&gt;()</b>
+<b class="fc">&nbsp;    this.forEachIndexed { index, item -&gt;</b>
+<b class="fc">&nbsp;        if (item.action !is Actions.Sign) {</b>
+<b class="fc">&nbsp;            helperList.add(item)</b>
+<b class="fc">&nbsp;            if (index == this.size - 1) {</b>
+<b class="fc">&nbsp;                returnList.add(helperList.take(helperList.size))</b>
+&nbsp;            }
+&nbsp;        } else {
+<b class="pc">&nbsp;            if (helperList.isNotEmpty()) {</b>
+<b class="fc">&nbsp;                returnList.add(helperList.take(helperList.size))</b>
+<b class="fc">&nbsp;                helperList.clear()</b>
+&nbsp;            }
+<b class="fc">&nbsp;            returnList.add(listOf(item))</b>
+&nbsp;        }
+<b class="fc">&nbsp;    }</b>
+&nbsp;
+&nbsp;    //given list [[Five,Five,Five],[Plus],[Four],[Minus],[Two,One,Zero]]
+<b class="fc">&nbsp;    val groupedNumbersSignsList = returnList.map {</b>
+<b class="fc">&nbsp;        if (it.first().action is Actions.Number) {</b>
+<b class="fc">&nbsp;            val builder = StringBuilder()</b>
+<b class="fc">&nbsp;            it.map { sign -&gt; builder.append((sign.action as Actions.Number).numberSign) }</b>
+<b class="fc">&nbsp;            val numberSigns = builder.toString()</b>
+<b class="fc">&nbsp;            val value = numberSigns.toLong()</b>
+<b class="fc">&nbsp;            Signs.NumberHelper(numberSigns, value)</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            it.first()</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    this.clear()</b>
+&nbsp;
+&nbsp;    //given list, sample converted to digits for simplicity [[555],[+],[4],[-],[210]]
+<b class="fc">&nbsp;    this.addAll(groupedNumbersSignsList)</b>
+&nbsp;}
+&nbsp;
+&nbsp;fun MutableList&lt;Signs&gt;.calculateValue(): Long {
+<b class="fc">&nbsp;    var theLowestPrecedence: Pair&lt;Signs, Triple&lt;SignIndex, FirstValueIndex, SecondValueIndex&gt;&gt; =</b>
+<b class="fc">&nbsp;        Signs.NotImplementedYet to Triple(-1, -1, -1)</b>
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;    var signIsPresent = true</b>
+<b class="fc">&nbsp;    while (signIsPresent) {</b>
+&nbsp;
+<b class="fc">&nbsp;        forEachIndexed { index, sign -&gt;</b>
+&nbsp;
+&nbsp;            //skip if sign is a number
+<b class="fc">&nbsp;            if (sign.precedence == -1) return@forEachIndexed</b>
+&nbsp;
+&nbsp;            //skip if sign is the same operator
+<b class="fc">&nbsp;            if (sign.precedence == theLowestPrecedence.first.precedence) return@forEachIndexed</b>
+&nbsp;
+&nbsp;            //skip if precedence order is higher than actual and actual is not the first sign (default is -1, not found earlier)
+<b class="pc">&nbsp;            if (sign.precedence &gt; theLowestPrecedence.first.precedence &amp;&amp; theLowestPrecedence.first.precedence != -1) return@forEachIndexed</b>
+&nbsp;
+<b class="fc">&nbsp;            theLowestPrecedence = sign to Triple(index, index - 1, index + 1)</b>
+<b class="fc">&nbsp;        }</b>
+&nbsp;
+<b class="fc">&nbsp;        val firstNumber = (this[theLowestPrecedence.second.second].action as Actions.Number).number</b>
+<b class="fc">&nbsp;        val secondNumber = (this[theLowestPrecedence.second.third].action as Actions.Number).number</b>
+&nbsp;
+<b class="fc">&nbsp;        val result = when (theLowestPrecedence.first) {</b>
+<b class="pc">&nbsp;            Signs.Divide -&gt; {</b>
+<b class="nc">&nbsp;                firstNumber / secondNumber</b>
+&nbsp;            }
+&nbsp;
+<b class="pc">&nbsp;            Signs.Multiply -&gt; {</b>
+<b class="nc">&nbsp;                firstNumber * secondNumber</b>
+&nbsp;            }
+&nbsp;
+<b class="fc">&nbsp;            Signs.Minus -&gt; {</b>
+<b class="fc">&nbsp;                firstNumber - secondNumber</b>
+&nbsp;            }
+&nbsp;
+<b class="pc">&nbsp;            Signs.Plus -&gt; {</b>
+<b class="fc">&nbsp;                firstNumber + secondNumber</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            else -&gt; throw IllegalStateException(&quot;sign not allowed ${theLowestPrecedence.first}&quot;)</b>
+&nbsp;        }
+&nbsp;
+<b class="fc">&nbsp;        this.removeAt(theLowestPrecedence.second.second)</b>
+&nbsp;        // index changed drop one down
+<b class="fc">&nbsp;        this.removeAt(theLowestPrecedence.second.third - 1)</b>
+&nbsp;        // index changed drop one down
+<b class="fc">&nbsp;        this[theLowestPrecedence.second.first - 1] = toSign(result)</b>
+&nbsp;
+<b class="fc">&nbsp;        signIsPresent = this.any { it.action is Actions.Sign }</b>
+&nbsp;    }
+&nbsp;
+<b class="fc">&nbsp;    return (this.first().action as Actions.Number).number</b>
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-09-02 13:53</div>
+</div>
+</body>
+</html>
