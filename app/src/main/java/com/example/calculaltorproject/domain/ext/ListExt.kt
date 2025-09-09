@@ -39,6 +39,20 @@ fun List<Signs>.textComposer(onTextCompleted: (String) -> Unit) {
     displayBuilder.clear()
 }
 
+
+fun MutableList<Signs>.previewComposer(onPreviewCompleted: (String) -> Unit) {
+    var preview = ""
+
+    groupNumbers()
+    val result = rightToCalculate()
+    if (result) {
+        removeLastSign()
+        preview = calculateValue().toString()
+    }
+
+    onPreviewCompleted(preview)
+}
+
 fun MutableList<Signs>.signComposer(
     sign: Signs,
     onSignCompleted: (List<Signs>) -> Unit,
@@ -111,6 +125,8 @@ fun MutableList<Signs>.groupNumbers() {
     //given list [Five,Five,Five,Plus,Four,Minus,Two,One,Zero]
     val returnList = mutableListOf<List<Signs>>()
     val helperList = mutableListOf<Signs>()
+
+
     this.forEachIndexed { index, item ->
         if (item.action !is Actions.Sign) {
             helperList.add(item)
@@ -148,23 +164,19 @@ fun MutableList<Signs>.groupNumbers() {
 
 fun precedenceStartValue() = Signs.NotImplementedYet to Triple(-1, -1, -1)
 
-fun MutableList<Signs>.checkCalculateValueIsPossible(onReady: () -> Unit, onNotReady: () -> Unit) {
+fun MutableList<Signs>.rightToCalculate(): Boolean {
 
     val amountOfNumbers = this.filter { it.action is Actions.Number }.size
     val amountOfSigns = this.filter { it.action is Actions.Sign }.size
 
-    if (amountOfNumbers >= 2 && amountOfSigns < amountOfNumbers) {
-        onReady()
-    } else {
-        onNotReady()
-    }
+    return amountOfNumbers >= 2 && amountOfSigns < amountOfNumbers
 }
 
-fun MutableList<Signs>.removeLastSign(){
+fun MutableList<Signs>.removeLastSign() {
     val lastSign = last()
     val index = this.indexOf(lastSign)
 
-    if(lastSign.action is Actions.Sign){
+    if (lastSign.action is Actions.Sign) {
         this.removeAt(index)
     }
 }
