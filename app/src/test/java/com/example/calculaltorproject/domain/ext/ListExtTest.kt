@@ -479,4 +479,47 @@ class ListExtTest {
         //then, result sign list last element is not a Sign
         assertEquals(values.last(), Signs.Three)
     }
+
+    @Test
+    fun test025_givenRightSignList_whenPreviewComposer_thenPreviewSuccessful() {
+        //given
+        val values = mutableListOf(Signs.Four, Signs.Divide, Signs.Two)
+        lateinit var preview: String
+
+        //when
+        values.previewComposer(onPreviewCompleted = {
+            preview = it
+        })
+
+        //then
+        assertEquals("2.0", preview)
+    }
+
+    @Test
+    fun test026_givenSignListLastIsSign_whenPreviewComposer_thenPreviewSuccessfulEmpty() {
+        //given
+        val values = mutableListOf(Signs.Four, Signs.Divide, Signs.Two, Signs.Plus)
+        lateinit var preview: String
+
+        //when
+        values.previewComposer(onPreviewCompleted = {
+            preview = it
+        })
+
+        //then
+        assertEquals("", preview)
+    }
+
+    @Test
+    fun test027_givenSignList_whenGroupNumbers_thenNumbersAreGrouped() {
+        //given
+        val values =
+            mutableListOf(Signs.One, Signs.Zero, Signs.Zero, Signs.Plus, Signs.Two, Signs.Zero)
+
+        //when
+        values.groupNumbers()
+
+        //then
+        assertEquals(values.size, 3)
+    }
 }
