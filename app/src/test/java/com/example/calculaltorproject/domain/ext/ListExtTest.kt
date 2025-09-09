@@ -8,6 +8,8 @@ import org.junit.FixMethodOrder
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
+const val delta = 1e-9
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ListExtTest {
 
@@ -24,7 +26,7 @@ class ListExtTest {
         }
 
         //then
-        assertEquals(result, 12)
+        assertEquals(result, 12.toDouble(), delta)
     }
 
     @Test
@@ -40,7 +42,7 @@ class ListExtTest {
         }
 
         //then
-        assertEquals(result, 16)
+        assertEquals(result, 16.toDouble(), delta)
     }
 
     @Test
@@ -56,7 +58,7 @@ class ListExtTest {
         }
 
         //then
-        assertEquals(result, -1)
+        assertEquals(result, (-1).toDouble(), delta)
     }
 
     @Test
@@ -72,7 +74,7 @@ class ListExtTest {
         }
 
         //then
-        assertEquals(result, -6)
+        assertEquals(result, (-6).toDouble(), delta)
     }
 
     @Test
@@ -88,7 +90,7 @@ class ListExtTest {
         }
 
         //then
-        assertEquals(60, result)
+        assertEquals(60.toDouble(), result, delta)
     }
 
     @Test
@@ -150,7 +152,8 @@ class ListExtTest {
         //given numberSign
         val helperSign = "210"
         //given list of signs
-        val values = mutableListOf(Signs.NumberHelper(helperSign, helperSign.toLong()),Signs.Plus)
+        val values =
+            mutableListOf(Signs.NumberHelper(helperSign, helperSign.toDouble()), Signs.Plus)
 
         //when
         var result = ""
@@ -161,10 +164,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test010_givenSignList_whenSignsPassedIsSum_thenSignComposerExecuteOnSignError(){
+    fun test010_givenSignList_whenSignsPassedIsSum_thenSignComposerExecuteOnSignError() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
         lateinit var exception: SignException
 
 
@@ -183,10 +186,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test011_givenSignList_whenSignsPassedIsPlus_thenOnSignCompletedEndsWithThisSign(){
+    fun test011_givenSignList_whenSignsPassedIsPlus_thenOnSignCompletedEndsWithThisSign() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
         val resultSigns = mutableListOf<Signs>()
         //given plus sign
         val plusSign = Signs.Plus
@@ -206,10 +209,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test012_givenSignList_whenSignsPassedIsDelete_thenSignsListIsReduced(){
+    fun test012_givenSignList_whenSignsPassedIsDelete_thenSignsListIsReduced() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
 
 
         //when, clicked sign is "delete"
@@ -225,12 +228,12 @@ class ListExtTest {
     }
 
     @Test
-    fun test013_givenEmptySignList_whenSignsPassedIsDelete_thenInputErrorNothingToDeleteIsThrown(){
+    fun test013_givenEmptySignList_whenSignsPassedIsDelete_thenInputErrorNothingToDeleteIsThrown() {
 
         //given empty list of signs
-        val values : MutableList<Signs> = mutableListOf()
+        val values: MutableList<Signs> = mutableListOf()
         //exception
-        lateinit var inputError : InputErrors
+        lateinit var inputError: InputErrors
 
 
         //when, clicked sign is "delete"
@@ -248,10 +251,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test014_givenSignList_whenSignsPassedIsClearAll_thenListSizeIsZero(){
+    fun test014_givenSignList_whenSignsPassedIsClearAll_thenListSizeIsZero() {
 
         //given empty list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.One,Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
 
         //when, clicked sign is "delete"
         values.signComposer(
@@ -266,10 +269,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test015_givenEmptySignList_whenSignsPassedIsClearAll_thenInputErrorNothingToClearIsThrown(){
+    fun test015_givenEmptySignList_whenSignsPassedIsClearAll_thenInputErrorNothingToClearIsThrown() {
 
         //given empty list of signs
-        val values : MutableList<Signs> = mutableListOf()
+        val values: MutableList<Signs> = mutableListOf()
         //given input error
         lateinit var error: InputErrors
 
@@ -288,10 +291,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test016_givenSignList_whenSignsPassedIsNumber_thenSignListIsGreater(){
+    fun test016_givenSignList_whenSignsPassedIsNumber_thenSignListIsGreater() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.Zero)
 
         //when, clicked sign is "Zero"
         values.signComposer(
@@ -306,11 +309,11 @@ class ListExtTest {
     }
 
     @Test
-    fun test017_givenSignList15SameDigits_whenSignsPassedIsSameDigit_thenMoreThanFifteenSameDigitsErrorIsThrown(){
+    fun test017_givenSignList15SameDigits_whenSignsPassedIsSameDigit_thenMoreThanFifteenSameDigitsErrorIsThrown() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf()
-        repeat(15){
+        val values: MutableList<Signs> = mutableListOf()
+        repeat(15) {
             values.add(Signs.Zero)
         }
         //given error
@@ -332,10 +335,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test017_givenEmptySignList_whenSignsActionIsSign_thenNoValueOnWhichCalculationsCanBeMadeErrorIsThrown(){
+    fun test017_givenEmptySignList_whenSignsActionIsSign_thenNoValueOnWhichCalculationsCanBeMadeErrorIsThrown() {
 
         //given empty list of signs
-        val values : MutableList<Signs> = mutableListOf()
+        val values: MutableList<Signs> = mutableListOf()
         //given error
         lateinit var error: InputErrors
 
@@ -355,10 +358,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test018_givenSignList_whenLastSignIsSameActionSign_thenSignAlreadyUsedErrorIsThrown(){
+    fun test018_givenSignList_whenLastSignIsSameActionSign_thenSignAlreadyUsedErrorIsThrown() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Zero, Signs.Plus)
+        val values: MutableList<Signs> = mutableListOf(Signs.Zero, Signs.Plus)
         //given error
         lateinit var error: InputErrors
 
@@ -378,10 +381,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test019_givenSignList_whenLastSignIsActionSign_thenUnsupportedLastSignErrorIsThrown(){
+    fun test019_givenSignList_whenLastSignIsActionSign_thenUnsupportedLastSignErrorIsThrown() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Zero, Signs.Plus)
+        val values: MutableList<Signs> = mutableListOf(Signs.Zero, Signs.Plus)
         //given error
         lateinit var error: InputErrors
 
@@ -401,10 +404,10 @@ class ListExtTest {
     }
 
     @Test
-    fun test020_givenSignList_whenLastSignIsPassed_thenLastSignIsPresent(){
+    fun test020_givenSignList_whenLastSignIsPassed_thenLastSignIsPresent() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Zero)
+        val values: MutableList<Signs> = mutableListOf(Signs.Zero)
         //given sign
         val sign = Signs.Plus
 
@@ -422,28 +425,58 @@ class ListExtTest {
     }
 
     @Test
-    fun test021_givenSignList_whenSignListContainsDivideAndMultiply_thenResultIsCorrectByPreservePrecedence(){
+    fun test021_givenSignList_whenSignListContainsDivideAndMultiply_thenResultIsCorrectByPreservePrecedence() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Two, Signs.Multiply, Signs.Three,
-            Signs.Divide, Signs.Two)
+        val values: MutableList<Signs> = mutableListOf(
+            Signs.Two, Signs.Multiply, Signs.Three,
+            Signs.Divide, Signs.Two
+        )
 
         //when, value is calculated
-        val result = values.calculateValue()
+        val result = values.run {
+            groupNumbers()
+            calculateValue()
+        }
 
         //then, sign precedence is preserved
-        assertEquals(result, 3)
+        assertEquals(result, 3.toDouble(), delta)
     }
 
     @Test
-    fun test022_givenSignList_whenSignListContainsNotAllowedSign_thenIllegalStateExceptionIsThrown(){
+    fun test022_givenSignList_whenSignListContainsNotAllowedSign_thenIllegalStateExceptionIsThrown() {
 
         //given list of signs
-        val values : MutableList<Signs> = mutableListOf(Signs.Two, Signs.Percentage, Signs.Three)
+        val values: MutableList<Signs> = mutableListOf(Signs.Two, Signs.Percentage, Signs.Three)
 
         //when, value is calculated, then, sign precedence is preserved
         assertThrows(IllegalStateException::class.java, ({
             values.calculateValue()
         }))
+    }
+
+    @Test
+    fun test023_givenSignListLastElementSign_whenRemoveLastSign_thenLastListElementIsNotSign() {
+        //given
+        val values: MutableList<Signs> =
+            mutableListOf(Signs.Two, Signs.Percentage, Signs.Three, Signs.Multiply)
+
+        //when
+        values.removeLastSign()
+
+        //then, result sign list last element is not a Sign
+        assertEquals(values.last(), Signs.Three)
+    }
+
+    @Test
+    fun test024_givenSignListLastElementNumber_whenRemoveLastSign_thenListPreserveTheSame() {
+        //given
+        val values: MutableList<Signs> = mutableListOf(Signs.Two, Signs.Percentage, Signs.Three)
+
+        //when
+        values.removeLastSign()
+
+        //then, result sign list last element is not a Sign
+        assertEquals(values.last(), Signs.Three)
     }
 }
