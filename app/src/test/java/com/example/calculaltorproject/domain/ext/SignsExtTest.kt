@@ -1,6 +1,5 @@
 package com.example.calculaltorproject.domain.ext
 
-import com.example.calculaltorproject.domain.model.Actions
 import com.example.calculaltorproject.domain.model.Signs
 import org.junit.Assert.*
 import org.junit.Test
