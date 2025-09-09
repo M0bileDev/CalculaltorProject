@@ -146,9 +146,11 @@ fun MutableList<Signs>.groupNumbers() {
     this.addAll(groupedNumbersSignsList)
 }
 
+fun precedenceStartValue() = Signs.NotImplementedYet to Triple(-1, -1, -1)
+
 fun MutableList<Signs>.calculateValue(): Long {
     var theLowestPrecedence: Pair<Signs, Triple<SignIndex, FirstValueIndex, SecondValueIndex>> =
-        Signs.NotImplementedYet to Triple(-1, -1, -1)
+        precedenceStartValue()
 
 
     var signIsPresent = true
@@ -198,6 +200,7 @@ fun MutableList<Signs>.calculateValue(): Long {
         this[theLowestPrecedence.second.first - 1] = toSign(result)
 
         signIsPresent = this.any { it.action is Actions.Sign }
+        theLowestPrecedence = precedenceStartValue()
     }
 
     return (this.first().action as Actions.Number).number
