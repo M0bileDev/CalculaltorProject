@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -18,7 +17,8 @@ import com.example.calculaltorproject.presentation.components.RoundButton
 @Composable
 fun Displayer(
     modifier: Modifier = Modifier,
-    value: String,
+    signsValue: String,
+    previewResultValue: String,
     onValueChange: (String) -> Unit = {},
     onDeleteClicked: () -> Unit
 ) {
@@ -27,12 +27,12 @@ fun Displayer(
             modifier = modifier
                 .fillMaxSize()
                 .padding(bottom = 72.dp),
-            value = value,
+            value = signsValue,
             onValueChange = onValueChange,
             readOnly = true,
             textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
             supportingText = {
-                Text("test", )
+                Text(previewResultValue)
             }
         )
         RoundButton(
