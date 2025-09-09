@@ -420,4 +420,30 @@ class ListExtTest {
         //then, error NoValueOnWhichCalculationsCanBeMade is thrown
         assertEquals(sign, values.last())
     }
+
+    @Test
+    fun test021_givenSignList_whenSignListContainsDivideAndMultiply_thenResultIsCorrectByPreservePrecedence(){
+
+        //given list of signs
+        val values : MutableList<Signs> = mutableListOf(Signs.Two, Signs.Multiply, Signs.Three,
+            Signs.Divide, Signs.Two)
+
+        //when, value is calculated
+        val result = values.calculateValue()
+
+        //then, sign precedence is preserved
+        assertEquals(result, 3)
+    }
+
+    @Test
+    fun test022_givenSignList_whenSignListContainsNotAllowedSign_thenIllegalStateExceptionIsThrown(){
+
+        //given list of signs
+        val values : MutableList<Signs> = mutableListOf(Signs.Two, Signs.Percentage, Signs.Three)
+
+        //when, value is calculated, then, sign precedence is preserved
+        assertThrows(IllegalStateException::class.java, ({
+            values.calculateValue()
+        }))
+    }
 }
