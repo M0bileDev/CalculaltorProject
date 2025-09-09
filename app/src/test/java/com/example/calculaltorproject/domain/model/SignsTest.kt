@@ -3,17 +3,16 @@ package com.example.calculaltorproject.domain.model
 import com.example.calculaltorproject.domain.model.Signs.Brackets.toSign
 import org.junit.Assert.*
 import org.junit.Test
-import kotlin.math.sign
 
 class SignsTest {
 
     @Test
-    fun givenNumbersFrom0to9_whenConvertedToSigns_thenConvertedToRightSigns(){
+    fun givenNumbersFrom0to9_whenConvertedToSigns_thenConvertedToRightSigns() {
         //given                         //when
-        val numbers = (0L..9L)
+        val numbers = (0..9)
 
         //when
-        val signs = numbers.map { toSign(it) }
+        val signs = numbers.map { toSign(it.toDouble()) }
 
         //then
         assertEquals(signs[0], Signs.Zero)
@@ -29,9 +28,9 @@ class SignsTest {
     }
 
     @Test
-    fun givenNumbersMoreThan9_whenConvertedToSigns_thenConvertedToNumberHelper(){
+    fun givenNumbersMoreThan9_whenConvertedToSigns_thenConvertedToNumberHelper() {
         //given                         //when
-        val number = 11L
+        val number = 11.toDouble()
 
         //when
         val signs = toSign(number)
