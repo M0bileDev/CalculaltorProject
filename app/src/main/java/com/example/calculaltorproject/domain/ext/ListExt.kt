@@ -132,7 +132,7 @@ fun MutableList<Signs>.groupNumbers() {
             val builder = StringBuilder()
             it.map { sign -> builder.append((sign.action as Actions.Number).numberSign) }
             val numberSigns = builder.toString()
-            val value = numberSigns.toLong()
+            val value = numberSigns.toDouble()
             Signs.NumberHelper(numberSigns, value)
         } else {
             it.first()
@@ -148,7 +148,28 @@ fun MutableList<Signs>.groupNumbers() {
 
 fun precedenceStartValue() = Signs.NotImplementedYet to Triple(-1, -1, -1)
 
-fun MutableList<Signs>.calculateValue(): Long {
+fun MutableList<Signs>.checkCalculateValueIsPossible(onReady: () -> Unit, onNotReady: () -> Unit) {
+
+    val amountOfNumbers = this.filter { it.action is Actions.Number }.size
+    val amountOfSigns = this.filter { it.action is Actions.Sign }.size
+
+    if (amountOfNumbers >= 2 && amountOfSigns < amountOfNumbers) {
+        onReady()
+    } else {
+        onNotReady()
+    }
+}
+
+fun MutableList<Signs>.removeLastSign(){
+    val lastSign = last()
+    val index = this.indexOf(lastSign)
+
+    if(lastSign.action is Actions.Sign){
+        this.removeAt(index)
+    }
+}
+
+fun MutableList<Signs>.calculateValue(): Double {
     var theLowestPrecedence: Pair<Signs, Triple<SignIndex, FirstValueIndex, SecondValueIndex>> =
         precedenceStartValue()
 
