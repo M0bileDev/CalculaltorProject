@@ -55,7 +55,7 @@ fun MutableList<Signs>.previewComposer(onPreviewCompleted: (String) -> Unit) {
 
 fun MutableList<Signs>.signComposer(
     sign: Signs,
-    onSignCompleted: (List<Signs>) -> Unit,
+    onSignCompleted: () -> Unit,
     onSignError: (SignException) -> Unit,
     onError: (InputErrors) -> Unit
 ) {
@@ -116,7 +116,7 @@ fun MutableList<Signs>.signComposer(
     } catch (e: InputSignException) {
         onError(e.inputError)
     } finally {
-        onSignCompleted(this)
+        onSignCompleted()
     }
 }
 
