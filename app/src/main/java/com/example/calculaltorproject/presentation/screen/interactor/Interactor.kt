@@ -2,17 +2,15 @@ package com.example.calculaltorproject.presentation.screen.interactor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.example.calculaltorproject.domain.model.Signs
 import com.example.calculaltorproject.presentation.components.FourButtonRow
 
 @Composable
 fun Interactor(
     modifier: Modifier = Modifier,
-    onActionChange: (Signs) -> Unit
+    onActionChanged: (Signs) -> Unit
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.SpaceEvenly) {
         FourButtonRow(
@@ -21,16 +19,16 @@ fun Interactor(
             thirdButtonValue = Signs.NotImplementedYet,
             fourthButtonValue = Signs.Divide,
             onFirstButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onSecondButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onThirdButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onFourthButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
         )
         FourButtonRow(
@@ -39,16 +37,16 @@ fun Interactor(
             thirdButtonValue = Signs.Nine,
             fourthButtonValue = Signs.Multiply,
             onFirstButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onSecondButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onThirdButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onFourthButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
         )
         FourButtonRow(
@@ -57,16 +55,16 @@ fun Interactor(
             thirdButtonValue = Signs.Six,
             fourthButtonValue = Signs.Minus,
             onFirstButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onSecondButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onThirdButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onFourthButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
         )
         FourButtonRow(
@@ -75,16 +73,16 @@ fun Interactor(
             thirdButtonValue = Signs.Three,
             fourthButtonValue = Signs.Plus,
             onFirstButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onSecondButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onThirdButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onFourthButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
         )
         FourButtonRow(
@@ -93,16 +91,16 @@ fun Interactor(
             thirdButtonValue = Signs.NotImplementedYet,
             fourthButtonValue = Signs.Sum,
             onFirstButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onSecondButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onThirdButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
             onFourthButtonChange = { action ->
-                onActionChange(action)
+                onActionChanged(action)
             },
         )
     }
