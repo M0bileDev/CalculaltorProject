@@ -190,22 +190,19 @@ class ListExtTest {
 
         //given list of signs
         val values: MutableList<Signs> = mutableListOf(Signs.One, Signs.Zero)
-        val resultSigns = mutableListOf<Signs>()
         //given plus sign
         val plusSign = Signs.Plus
 
         //when, clicked sign is "plus"
         values.signComposer(
             sign = plusSign,
-            onSignCompleted = {
-                resultSigns.addAll(it)
-            },
+            onSignCompleted = {},
             onSignError = {},
             onError = {}
         )
 
         //then, last element of list is equal to Plus
-        assertSame(plusSign, resultSigns.last())
+        assertSame(plusSign, values.last())
     }
 
     @Test
