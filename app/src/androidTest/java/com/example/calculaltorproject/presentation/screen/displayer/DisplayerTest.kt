@@ -49,7 +49,7 @@ class DisplayerTest {
         }
 
         composeTestRule.onNodeWithTag("displayerTextField")
-            .assertTextContains("0")
+            .assertTextContains("1")
     }
 
 }
