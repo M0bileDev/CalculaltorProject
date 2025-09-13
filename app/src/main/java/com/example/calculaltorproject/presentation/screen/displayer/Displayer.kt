@@ -10,6 +10,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculaltorproject.presentation.components.RoundButton
@@ -25,6 +26,7 @@ fun Displayer(
     Box(modifier = modifier, contentAlignment = Alignment.BottomEnd) {
         TextField(
             modifier = modifier
+                .testTag("displayerTextField")
                 .fillMaxSize()
                 .padding(bottom = 72.dp),
             value = signsValue,
