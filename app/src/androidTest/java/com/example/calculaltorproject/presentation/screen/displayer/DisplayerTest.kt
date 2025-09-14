@@ -1,13 +1,9 @@
 package com.example.calculaltorproject.presentation.screen.displayer
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.calculaltorproject.domain.model.Actions
 import com.example.calculaltorproject.domain.model.Signs
 import com.example.calculaltorproject.framework.MainActivityViewModel
 import com.example.calculaltorproject.presentation.theme.CalculaltorProjectTheme
@@ -30,26 +26,55 @@ class DisplayerTest {
     }
 
     @Test
-    fun test() {
+    fun givenSignsOne_whenSignsValueTakesNumberSign_thenDisplayerTextFieldContainsOne() =
+        with(composeTestRule) {
 
-        viewModel.onActionChanged(Signs.One)
+            //given
+            val signsValue = (Signs.One.action as Actions.Number).numberSign
 
-        composeTestRule.setContent {
-            CalculaltorProjectTheme {
+            //when
+            setContent {
+                CalculaltorProjectTheme {
 
-                val signsValue by viewModel.display.collectAsStateWithLifecycle()
-                val previewResultValue by remember { mutableStateOf("") }
-
-                Displayer(
-                    signsValue = signsValue,
-                    previewResultValue = previewResultValue,
-                    onDeleteClicked = {}
-                )
+                    Displayer(
+                        signsValue = signsValue,
+                        previewResultValue = "",
+                        onDeleteClicked = {}
+                    )
+                }
             }
+
+            //then
+            onNodeWithTag(displayerTextField)
+                .assertTextContains(signsValue)
+
+            return@with
         }
 
-        composeTestRule.onNodeWithTag("displayerTextField")
-            .assertTextContains("1")
-    }
+    @Test
+    fun givenSignsOne_whenPreviewResultValueTakesNumberSign_thenDisplayerSupportTextFieldContainsOne() =
+        with(composeTestRule) {
+
+            //given
+            val previewResultValue = (Signs.One.action as Actions.Number).numberSign
+
+            //when
+            setContent {
+                CalculaltorProjectTheme {
+
+                    Displayer(
+                        signsValue = "",
+                        previewResultValue = previewResultValue,
+                        onDeleteClicked = {}
+                    )
+                }
+            }
+            //then
+            onNodeWithTag(displayerSupportTextField, useUnmergedTree = true)
+                .assertTextContains(previewResultValue)
+
+            return@with
+
+        }
 
 }
