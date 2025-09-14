@@ -5,13 +5,18 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.filters.LargeTest
+import com.example.calculaltorproject.Ui
 import com.example.calculaltorproject.domain.model.Actions
 import com.example.calculaltorproject.domain.model.Signs
 import com.example.calculaltorproject.presentation.theme.CalculaltorProjectTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@Category(Ui::class)
+@LargeTest
 class DisplayerTest {
 
     @get:Rule
