@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculaltorproject.presentation.components.RoundButton
 
+const val displayerTextField = "displayerTextField"
+const val displayerSupportTextField = "displayerSupportTextField"
+
 @Composable
 fun Displayer(
     modifier: Modifier = Modifier,
@@ -26,7 +29,7 @@ fun Displayer(
     Box(modifier = modifier, contentAlignment = Alignment.BottomEnd) {
         TextField(
             modifier = modifier
-                .testTag("displayerTextField")
+                .testTag(displayerTextField)
                 .fillMaxSize()
                 .padding(bottom = 72.dp),
             value = signsValue,
@@ -34,7 +37,10 @@ fun Displayer(
             readOnly = true,
             textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
             supportingText = {
-                Text(previewResultValue)
+                Text(
+                    modifier = Modifier.testTag(displayerSupportTextField),
+                    text = previewResultValue
+                )
             }
         )
         RoundButton(
