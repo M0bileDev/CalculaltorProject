@@ -5,25 +5,14 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.example.calculaltorproject.domain.model.Actions
 import com.example.calculaltorproject.domain.model.Signs
-import com.example.calculaltorproject.framework.MainActivityViewModel
 import com.example.calculaltorproject.presentation.theme.CalculaltorProjectTheme
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-
 class DisplayerTest {
-
-    lateinit var viewModel: MainActivityViewModel
 
     @get:Rule
     val composeTestRule = createComposeRule()
-
-
-    @Before
-    fun setup() {
-        viewModel = MainActivityViewModel()
-    }
 
     @Test
     fun givenSignsOne_whenSignsValueTakesNumberSign_thenDisplayerTextFieldContainsOne() =
