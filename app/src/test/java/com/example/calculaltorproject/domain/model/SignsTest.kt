@@ -1,9 +1,12 @@
 package com.example.calculaltorproject.domain.model
 
+import com.example.calculaltorproject.FastTest
 import com.example.calculaltorproject.domain.model.Signs.Brackets.toSign
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@Category(FastTest::class)
 class SignsTest {
 
     @Test
