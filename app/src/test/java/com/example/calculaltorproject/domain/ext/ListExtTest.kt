@@ -1,15 +1,18 @@
 package com.example.calculaltorproject.domain.ext
 
+import com.example.calculaltorproject.FastTest
 import com.example.calculaltorproject.domain.model.InputErrors
 import com.example.calculaltorproject.domain.model.SignException
 import com.example.calculaltorproject.domain.model.Signs
 import org.junit.Assert.*
 import org.junit.FixMethodOrder
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runners.MethodSorters
 
 const val delta = 1e-9
 
+@Category(FastTest::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ListExtTest {
 

@@ -1,10 +1,13 @@
 package com.example.calculaltorproject.framework
 
+import com.example.calculaltorproject.FastTest
 import com.example.calculaltorproject.domain.model.Signs
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@Category(FastTest::class)
 class MainActivityViewModelTest {
 
     lateinit var viewModel: MainActivityViewModel
