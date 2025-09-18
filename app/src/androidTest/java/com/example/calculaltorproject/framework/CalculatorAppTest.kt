@@ -31,7 +31,7 @@ class CalculatorAppTest {
     }
 
     @Test
-    fun givenSigns_whenContentSetAndOnNodeClickPerformed_thenDisplayerTextFieldContainsRightSigns() =
+    fun givenSigns_whenSumPerformed_thenSumEquationIsDisplayed() =
         with(composeTestRule) {
 
             //given
@@ -47,11 +47,11 @@ class CalculatorAppTest {
                 CalculatorApp(
                     viewModel = mainActivityViewModel
                 )
+            }.run {
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valuePlus).assertExists().performClick()
+                onNodeWithText(valueOne).assertExists().performClick()
             }
-
-            onNodeWithText(valueOne).assertExists().performClick()
-            onNodeWithText(valuePlus).assertExists().performClick()
-            onNodeWithText(valueOne).assertExists().performClick()
 
             //then
             onNodeWithTag(displayerTextField)
@@ -61,7 +61,7 @@ class CalculatorAppTest {
         }
 
     @Test
-    fun givenSigns_whenContentSetAndOnNodeClickPerformed_thenPreviewContainsCorrectResult() =
+    fun givenSigns_whenSumPerformed_thenPreviewContainsCalculationResult() =
         with(composeTestRule) {
 
             //given
@@ -77,11 +77,11 @@ class CalculatorAppTest {
                 CalculatorApp(
                     viewModel = mainActivityViewModel
                 )
+            }.run {
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valuePlus).assertExists().performClick()
+                onNodeWithText(valueOne).assertExists().performClick()
             }
-
-            onNodeWithText(valueOne).assertExists().performClick()
-            onNodeWithText(valuePlus).assertExists().performClick()
-            onNodeWithText(valueOne).assertExists().performClick()
 
             //then
             onNodeWithTag(displayerSupportTextField, useUnmergedTree = true)
@@ -90,5 +90,70 @@ class CalculatorAppTest {
             return@with
         }
 
+    @Test
+    fun givenSigns_whenDeletePerformed_thenDisplayHasLessSigns() =
+        with(composeTestRule) {
+
+            //given
+            val one = Signs.One
+            val valueOne = (one.action as Actions.Number).numberSign
+
+            val plus = Signs.Plus
+            val valuePlus = (plus.action as Actions.Sign).sign
+
+            val delete = Signs.Delete
+            val valueDelete = (delete.action as Actions.Sign).sign
+
+            //when
+            setContent {
+                CalculatorApp(
+                    viewModel = mainActivityViewModel
+                )
+            }.run {
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valuePlus).assertExists().performClick()
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valueDelete).assertExists().performClick()
+            }
+
+            //then
+            onNodeWithTag(displayerTextField)
+                .assertTextContains("1+")
+
+            return@with
+        }
+
+    @Test
+    fun givenSigns_whenClearAllPerformed_thenDisplayIsEmpty() =
+        with(composeTestRule) {
+
+            //given
+            val one = Signs.One
+            val valueOne = (one.action as Actions.Number).numberSign
+
+            val plus = Signs.Plus
+            val valuePlus = (plus.action as Actions.Sign).sign
+
+            val clearAll = Signs.ClearAll
+            val valueClearAll = (clearAll.action as Actions.Sign).sign
+
+            //when
+            setContent {
+                CalculatorApp(
+                    viewModel = mainActivityViewModel
+                )
+            }.run {
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valuePlus).assertExists().performClick()
+                onNodeWithText(valueOne).assertExists().performClick()
+                onNodeWithText(valueClearAll).assertExists().performClick()
+            }
+
+            //then
+            onNodeWithTag(displayerTextField)
+                .assertTextContains("")
+
+            return@with
+        }
 
 }
