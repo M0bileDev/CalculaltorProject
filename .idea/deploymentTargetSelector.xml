@@ -5,10 +5,16 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="test()">
+      <SelectionState runConfigName="givenSigns_whenContentSetAndOnNodeClickPerformed_thenPreviewContainsCorrectResult()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="DisplayerTest">
+      <SelectionState runConfigName="givenSigns_whenSumPerformed_thenDisplayer()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="givenSigns_whenDeletePerformed_thenDisplayHasLessSigns()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="givenSigns_whenClearAllPerformed_thenDisplayIsEmpty()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
